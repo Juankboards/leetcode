@@ -22,46 +22,40 @@ Explanation: It could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2 6).
 */
 
 // this solution has a space problem
-// const numDecodings = (str) => {
-//     let solutions = numDecodingsCombos(str)
-//     return solutions.length
-// }
+const numDecodingsGenerating = (str) => {
+    let solutions = numDecodingsCombos(str)
+    return solutions.length
+}
 
-// const numDecodingsCombos = (str) => {
-//     if(!str) return [""]
-//     let decode = numDecodingsCombos(str.slice(1)).map(result => `${decoder(str[0])}${result}`)
-//     if(str.length > 1 && decoder(`${str[0]}${str[1]}`))
-//         decode = decode.concat(numDecodingsCombos(str.slice(2)).map(result => `${decoder(`${str[0]}${str[1]}`)}${result}`))
-//     return decode
-// }
-
-// const decoder = (str) => {
-//     if(parseInt(str) > 26) return ""
-//     return String.fromCharCode(parseInt(str) + 64)
-    
-// }
-
-//do not generate all answers
-
-const numDecodings = (str, cache = {}) => {
-    if(cache[str]) return cache[str]
-    if(!str) return 1
-    if(str[0] === "0") return 0
-    let solutions = 0
-    cache[str.slice(1)] = cache[str.slice(1)] || numDecodings(str.slice(1), cache)
-    solutions += cache[str.slice(1)]
-    if(str.length > 1 && decoder(`${str[0]}${str[1]}`)) {
-        cache[str.slice(2)] += cache[str.slice(2)] || numDecodings(str.slice(2), cache)
-        solutions += cache[str.slice(2)]
-    }
-    cache[str] = solutions
-    return cache[str]
+const numDecodingsCombos = (str) => {
+    if(!str) return [""]
+    let decode = numDecodingsCombos(str.slice(1)).map(result => `${decoder(str[0])}${result}`)
+    if(str.length > 1 && decoder(`${str[0]}${str[1]}`))
+        decode = decode.concat(numDecodingsCombos(str.slice(2)).map(result => `${decoder(`${str[0]}${str[1]}`)}${result}`))
+    return decode
 }
 
 const decoder = (str) => {
-    if(parseInt(str) > 26) return ""
-    return String.fromCharCode(parseInt(str) + 64)
-    
+    if(str[0] === "0" || !parseInt(str) || parseInt(str) > 26) return ""
+    return String.fromCharCode(parseInt(str) + 64)    
 }
 
-console.log(numDecodings("124"))
+//do not generate all answers
+
+const numDecodings = (str, pointer = 0, cache = {}) => {   
+    if(!str.length) return 0
+    if(pointer === str.length) return 1
+    if(cache[pointer]) return cache[pointer]
+    let branch1 = validDigit(str[pointer])? numDecodings(str, pointer + 1, cache) : 0
+    let branch2 = pointer < str.length -  1 && validDigit(`${str[pointer]}${str[pointer + 1]}`)? numDecodings(str, pointer + 2, cache) : 0
+    cache[pointer] = branch1 + branch2
+    return cache[pointer]
+}
+
+const validDigit = (str) => {
+    if(str[0] === "0" || !parseInt(str) || parseInt(str) > 26) return false
+    return true 
+}
+
+console.log(numDecodings("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"))
+
